@@ -14,41 +14,35 @@ if (!admin.apps.length) {
 
 module.exports = async (req, res) => {
 
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
     try {
 
-        const {
+        const { token, title, body, data } = req.body;
+
+        const response = await admin.messaging().send({
+
             token,
-            title,
-            body,
-            data
-        } = req.body;
 
-        const response =
-            await admin.messaging().send({
+            notification: {
+                title,
+                body
+            },
 
-                token,
+            data: data || {}
+        });
 
-                notification: {
-                    title,
-                    body
-                },
-
-                data: data || {}
-            });
-
-        res.status(200).json({
-
+        return res.status(200).json({
             success: true,
-
             response
         });
 
     } catch (e) {
 
-        res.status(500).json({
-
+        return res.status(500).json({
             success: false,
-
             error: e.message
         });
     }
